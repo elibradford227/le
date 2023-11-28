@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
@@ -14,9 +15,10 @@ const initialState = {
   date: '00:00:00',
 };
 
-const EventForm = () => {
+const EventForm = ({ user }) => {
   const [games, setGames] = useState([]);
   const [gamers, setGamers] = useState([]);
+  const [organizerId, setOrganizerId] = useState(0);
   /*
   Since the input fields are bound to the values of
   the properties of this state variable, you need to
@@ -38,6 +40,18 @@ const EventForm = () => {
     }));
   };
 
+  const getDatabaseId = () => {
+    gamers.map((gamer) => {
+      if (gamer.uid === user.uid) {
+        setOrganizerId(gamer.id);
+      }
+    });
+  };
+
+  useEffect(() => {
+    getDatabaseId();
+  });
+
   const handleSubmit = (e) => {
     // Prevent form from being submitted
     e.preventDefault();
@@ -47,12 +61,11 @@ const EventForm = () => {
       description: currentEvent.description,
       date: currentEvent.date,
       time: currentEvent.time,
-      organizer: Number(currentEvent.organizer),
+      organizer: organizerId,
     };
 
     // Send POST request to your API
     createEvent(event).then(() => router.push('/events/events'));
-    console.warn(event);
   };
 
   return (
@@ -108,7 +121,7 @@ const EventForm = () => {
             onChange={handleChange}
           />
         </Form.Group>
-        <Form.Group className="mb-3">
+        {/* <Form.Group className="mb-3">
           <Form.Label>Organizer</Form.Label>
           <Form.Select
             name="organizer"
@@ -128,7 +141,7 @@ const EventForm = () => {
                 ))
             }
           </Form.Select>
-        </Form.Group>
+        </Form.Group> */}
 
         <Button variant="primary" type="submit">
           Submit
