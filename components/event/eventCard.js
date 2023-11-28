@@ -11,6 +11,7 @@ const EventCard = ({
   <Card className="text-center">
     <Card.Header>Event</Card.Header>
     <Card.Body>
+      <Card.Title>{title}</Card.Title>
       <Card.Title>{description}</Card.Title>
       <Card.Text>{numberOfPlayers} players needed</Card.Text>
     </Card.Body>
