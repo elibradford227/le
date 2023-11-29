@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { createGame, getGameTypes } from '../../utils/data/gameData';
+import { createGame, getGameTypes, updateGame } from '../../utils/data/gameData';
 
 const initialState = {
   skillLevel: 1,
@@ -12,7 +12,7 @@ const initialState = {
   gameTypeId: 0,
 };
 
-const GameForm = ({ user }) => {
+const GameForm = ({ user, obj }) => {
   const [gameTypes, setGameTypes] = useState([]);
   /*
   Since the input fields are bound to the values of
@@ -21,6 +21,10 @@ const GameForm = ({ user }) => {
   */
   const [currentGame, setCurrentGame] = useState(initialState);
   const router = useRouter();
+
+  useEffect(() => {
+    if (obj.id) setCurrentGame(obj);
+  }, [obj]);
 
   useEffect(() => {
     getGameTypes().then((res) => setGameTypes(res));
@@ -47,8 +51,13 @@ const GameForm = ({ user }) => {
       userId: user.uid,
     };
 
+    if (obj.id) {
+      game.id = obj.id;
+      updateGame(game).then(() => router.push('/games/games'));
+    } else {
     // Send POST request to your API
-    createGame(game).then(() => router.push('/games/games'));
+      createGame(game).then(() => router.push('/games/games'));
+    }
   };
 
   return (
@@ -123,6 +132,9 @@ const GameForm = ({ user }) => {
 GameForm.propTypes = {
   user: PropTypes.shape({
     uid: PropTypes.string.isRequired,
+  }).isRequired,
+  obj: PropTypes.shape({
+    id: PropTypes.number.isRequired,
   }).isRequired,
 };
 

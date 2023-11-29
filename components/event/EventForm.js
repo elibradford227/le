@@ -1,8 +1,9 @@
+/* eslint-disable array-callback-return */
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { createEvent } from '../../utils/data/eventData';
+import { createEvent, updateEvent } from '../../utils/data/eventData';
 import { getGames } from '../../utils/data/gameData';
 import { getGamers } from '../../utils/data/gamerData';
 
@@ -14,9 +15,10 @@ const initialState = {
   date: '00:00:00',
 };
 
-const EventForm = () => {
+const EventForm = ({ user, obj }) => {
   const [games, setGames] = useState([]);
   const [gamers, setGamers] = useState([]);
+  const [organizerId, setOrganizerId] = useState(0);
   /*
   Since the input fields are bound to the values of
   the properties of this state variable, you need to
@@ -24,6 +26,10 @@ const EventForm = () => {
   */
   const [currentEvent, setcurrentEvent] = useState(initialState);
   const router = useRouter();
+
+  useEffect(() => {
+    if (obj.id) setcurrentEvent(obj);
+  }, [obj]);
 
   useEffect(() => {
     getGames().then((res) => setGames(res));
@@ -38,6 +44,18 @@ const EventForm = () => {
     }));
   };
 
+  const getDatabaseId = () => {
+    gamers.map((gamer) => {
+      if (gamer.uid === user.uid) {
+        setOrganizerId(gamer.id);
+      }
+    });
+  };
+
+  useEffect(() => {
+    getDatabaseId();
+  });
+
   const handleSubmit = (e) => {
     // Prevent form from being submitted
     e.preventDefault();
@@ -47,12 +65,16 @@ const EventForm = () => {
       description: currentEvent.description,
       date: currentEvent.date,
       time: currentEvent.time,
-      organizer: Number(currentEvent.organizer),
+      organizer: organizerId,
     };
 
+    if (obj.id) {
+      event.id = obj.id;
+      updateEvent(event).then(() => router.push('/events/events'));
+    } else {
     // Send POST request to your API
-    createEvent(event).then(() => router.push('/events/events'));
-    console.warn(event);
+      createEvent(event).then(() => router.push('/events/events'));
+    }
   };
 
   return (
@@ -108,7 +130,7 @@ const EventForm = () => {
             onChange={handleChange}
           />
         </Form.Group>
-        <Form.Group className="mb-3">
+        {/* <Form.Group className="mb-3">
           <Form.Label>Organizer</Form.Label>
           <Form.Select
             name="organizer"
@@ -128,7 +150,7 @@ const EventForm = () => {
                 ))
             }
           </Form.Select>
-        </Form.Group>
+        </Form.Group> */}
 
         <Button variant="primary" type="submit">
           Submit
@@ -141,6 +163,9 @@ const EventForm = () => {
 EventForm.propTypes = {
   user: PropTypes.shape({
     uid: PropTypes.string.isRequired,
+  }).isRequired,
+  obj: PropTypes.shape({
+    id: PropTypes.number.isRequired,
   }).isRequired,
 };
 
