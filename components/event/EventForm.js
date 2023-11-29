@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { createEvent } from '../../utils/data/eventData';
+import { createEvent, updateEvent } from '../../utils/data/eventData';
 import { getGames } from '../../utils/data/gameData';
 import { getGamers } from '../../utils/data/gamerData';
 
@@ -15,7 +15,7 @@ const initialState = {
   date: '00:00:00',
 };
 
-const EventForm = ({ user }) => {
+const EventForm = ({ user, obj }) => {
   const [games, setGames] = useState([]);
   const [gamers, setGamers] = useState([]);
   const [organizerId, setOrganizerId] = useState(0);
@@ -26,6 +26,10 @@ const EventForm = ({ user }) => {
   */
   const [currentEvent, setcurrentEvent] = useState(initialState);
   const router = useRouter();
+
+  useEffect(() => {
+    if (obj.id) setcurrentEvent(obj);
+  }, [obj]);
 
   useEffect(() => {
     getGames().then((res) => setGames(res));
@@ -64,8 +68,13 @@ const EventForm = ({ user }) => {
       organizer: organizerId,
     };
 
+    if (obj.id) {
+      event.id = obj.id;
+      updateEvent(event).then(() => router.push('/events/events'));
+    } else {
     // Send POST request to your API
-    createEvent(event).then(() => router.push('/events/events'));
+      createEvent(event).then(() => router.push('/events/events'));
+    }
   };
 
   return (
@@ -154,6 +163,9 @@ const EventForm = ({ user }) => {
 EventForm.propTypes = {
   user: PropTypes.shape({
     uid: PropTypes.string.isRequired,
+  }).isRequired,
+  obj: PropTypes.shape({
+    id: PropTypes.number.isRequired,
   }).isRequired,
 };
 

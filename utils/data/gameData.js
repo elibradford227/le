@@ -20,6 +20,18 @@ const createGame = (game) => new Promise((resolve, reject) => {
     .catch(reject);
 });
 
+const getSingleGame = (game) => new Promise((resolve, reject) => {
+  fetch(`${clientCredentials.databaseURL}/games/${game}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => resolve(data))
+    .catch(reject);
+});
+
 const getGameTypes = () => new Promise((resolve, reject) => {
   fetch(`${clientCredentials.databaseURL}/gametypes`)
     .then((response) => response.json())
@@ -27,6 +39,26 @@ const getGameTypes = () => new Promise((resolve, reject) => {
     .catch(reject);
 });
 
-export { getGames, createGame, getGameTypes };
+const updateGame = (payload) => new Promise((resolve, reject) => {
+  fetch(`${clientCredentials.databaseURL}/games/${payload.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((data) => {
+      if (data) {
+        resolve(data);
+      } else {
+        resolve([]);
+      }
+    })
+    .catch(reject);
+});
+
+export {
+  getGames, createGame, getGameTypes, getSingleGame, updateGame,
+};
 
 // eslint-disable-next-line import/prefer-default-export
