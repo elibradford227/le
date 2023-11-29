@@ -50,7 +50,24 @@ const updateEvent = (payload) => new Promise((resolve, reject) => {
     .catch(reject);
 });
 
+const deleteEvent = (event) => new Promise((resolve, reject) => {
+  fetch(`${clientCredentials.databaseURL}/events/${event}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((data) => {
+      if (data) {
+        resolve(data);
+      } else {
+        resolve([]);
+      }
+    })
+    .catch(reject);
+});
+
 // eslint-disable-next-line import/prefer-default-export
 export {
-  getEvents, createEvent, getSingleEvent, updateEvent,
+  getEvents, createEvent, getSingleEvent, updateEvent, deleteEvent,
 };
