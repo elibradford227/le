@@ -15,11 +15,11 @@ function Home() {
   const leaveEventFunc = useCallback((eventId, userId) => {
     console.warn(eventId, userId);
     leaveEvent(eventId, userId).then(router.reload);
-  }, []);
+  }, [router.reload]);
 
   const joinEventFunc = useCallback((eventId, uid) => {
     joinEvent(eventId, uid).then(router.reload);
-  }, []);
+  }, [router.reload]);
 
   useEffect(() => {
     getEvents(user.user.uid).then((data) => setEvents(data));
